@@ -1,0 +1,60 @@
+services:
+  nginx:
+    container_name: nginx
+    build: requirements/nginx
+    volumes:
+      - '/home/ecaliska/data/wordpress:/var/www/html'
+    env_file:
+      - .env
+    ports:
+      - "443:443"
+    depends_on:
+      - wordpress
+    restart: on-failure
+    networks:
+      - inception
+  wordpress:
+    container_name: wordpress
+    build: requirements/wordpress
+    volumes:
+      - '/home/ecaliska/data/wordpress:/var/www/html'
+    env_file:
+      - .env
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mariadb
+    restart: on-failure
+    networks:
+      - inception
+  mariadb:
+    container_name: mariadb
+    build: requirements/mariadb
+    volumes:
+      - '/home/ecaliska/data/mariadb:/var/lib/mysql'
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    restart: on-failure
+    networks:
+      - inception
+
+
+networks:
+  inception:
+    driver: bridge
+
+volumes:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "home/ecaliska/data/mariadb"
+      o: bind
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "home/ecaliska/data/wordpress"
+      o: bind
